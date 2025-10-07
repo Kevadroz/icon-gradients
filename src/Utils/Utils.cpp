@@ -309,11 +309,11 @@ std::vector<GradientConfig> Utils::getSavedGradients() {
     return ret;
 }
 
-void Utils::applyGradient(SimplePlayer* icon, GradientConfig config, ColorType colorType, IconType iconType, bool secondPlayer, bool force, bool blend) {
+void Utils::applyGradient(SimplePlayer* icon, GradientConfig config, ColorType colorType, IconType iconType, bool secondPlayer, bool force, bool blend, bool dontUpdate) {
     GJRobotSprite* otherSprite = nullptr;
 
-    std::optional<std::tuple<ColorType, IconType, bool, unsigned int>> colorCacheKey =
-        std::make_tuple(colorType, iconType, secondPlayer, 0);
+    std::optional<std::tuple<ColorType, IconType, bool, unsigned int, bool>> colorCacheKey =
+        std::make_tuple(colorType, iconType, secondPlayer, 0, dontUpdate);
 
     if (icon->m_robotSprite) if (icon->m_robotSprite->isVisible()) otherSprite = icon->m_robotSprite;
     if (icon->m_spiderSprite) if (icon->m_spiderSprite->isVisible()) otherSprite = icon->m_spiderSprite;
@@ -374,7 +374,7 @@ void Utils::applyGradient(SimplePlayer* icon, GradientConfig config, ColorType c
     }
 }
 
-void Utils::applyGradient(CCSprite* sprite, GradientConfig config, std::optional<std::tuple<ColorType, IconType, bool, unsigned int>> cacheKey, bool force, bool blend) {
+void Utils::applyGradient(CCSprite* sprite, GradientConfig config, std::optional<std::tuple<ColorType, IconType, bool, unsigned int, bool>> cacheKey, bool force, bool blend) {
     if (!sprite) return;
     
     CCGLProgram* defaultProgram = CCShaderCache::sharedShaderCache()->programForKey(kCCShader_PositionTextureColor);
@@ -396,9 +396,10 @@ void Utils::applyGradient(CCSprite* sprite, GradientConfig config, std::optional
         if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(shaderPath))
             return;
 
+        bool createNewProgram = true;
         std::string fullCacheKey;
         if (cacheKey.has_value()) {
-            std::tuple<ColorType, IconType, bool, unsigned int> cacheKeyValue = cacheKey.value();
+            std::tuple<ColorType, IconType, bool, unsigned int, bool> cacheKeyValue = cacheKey.value();
             fullCacheKey = getFullCacheKey(
                 shaderFile,
                 std::get<0>(cacheKeyValue),
@@ -410,26 +411,32 @@ void Utils::applyGradient(CCSprite* sprite, GradientConfig config, std::optional
             CCGLProgram* cacheProgram = CCShaderCache::sharedShaderCache()->programForKey(fullCacheKey.c_str());
             if (cacheProgram != nullptr) {
                 sprite->setShaderProgram(cacheProgram);
-                return;
+
+                // if (std::get<4>(cacheKeyValue))
+                    return;
+
+                createNewProgram = false;
             }
         }
 
-        program = new CCGLProgram();
-        program->autorelease();
+        if (createNewProgram) {
+            program = new CCGLProgram();
+            program->autorelease();
 
-        program->initWithVertexShaderFilename(vertPath.c_str(), shaderPath.c_str());
+            program->initWithVertexShaderFilename(vertPath.c_str(), shaderPath.c_str());
 
-        program->addAttribute(kCCAttributeNamePosition, kCCVertexAttrib_Position);
-        program->addAttribute(kCCAttributeNameColor, kCCVertexAttrib_Color);
-        program->addAttribute(kCCAttributeNameTexCoord, kCCVertexAttrib_TexCoords);
+            program->addAttribute(kCCAttributeNamePosition, kCCVertexAttrib_Position);
+            program->addAttribute(kCCAttributeNameColor, kCCVertexAttrib_Color);
+            program->addAttribute(kCCAttributeNameTexCoord, kCCVertexAttrib_TexCoords);
 
-        program->link();
-        program->updateUniforms();
+            program->link();
+            program->updateUniforms();
 
-        sprite->setShaderProgram(program);
+            sprite->setShaderProgram(program);
 
-        if (cacheKey.has_value())
-            CCShaderCache::sharedShaderCache()->addProgram(program, fullCacheKey.c_str());
+            if (cacheKey.has_value())
+                CCShaderCache::sharedShaderCache()->addProgram(program, fullCacheKey.c_str());
+        }
     }
 
     program->use();

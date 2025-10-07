@@ -80,9 +80,9 @@ void ProGJGarageLayer::updateGradient(bool colorful) {
 			loadedGradient = true;
 		}
 
-		Utils::applyGradient(icon, gradient.main, ColorType::Main, type, p2Selected, true);
-		Utils::applyGradient(icon, gradient.secondary, ColorType::Secondary, type, p2Selected, true);
-		Utils::applyGradient(icon, gradient.glow, ColorType::Glow, type, p2Selected, true);
+		Utils::applyGradient(icon, gradient.main, ColorType::Main, type, p2Selected, true, false, true);
+		Utils::applyGradient(icon, gradient.secondary, ColorType::Secondary, type, p2Selected, true, false, true);
+		Utils::applyGradient(icon, gradient.glow, ColorType::Glow, type, p2Selected, true, false, true);
 	}
 }
 

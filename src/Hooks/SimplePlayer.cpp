@@ -12,11 +12,12 @@ void ProSimplePlayer::updatePlayerFrame(int p0, IconType type) {
 	retain();
 
 	bool useP2Gradient = false;
-	if (Mod* sdiMod = Loader::get()->getLoadedMod("weebify.separate_dual_icons"))
-		if (CCDirector::sharedDirector()->getRunningScene()->getChildByType<GJGarageLayer>(0))
+	bool isGarage = CCDirector::sharedDirector()->getRunningScene()->getChildByType<GJGarageLayer>(0);
+	if (isGarage)
+		if (Mod* sdiMod = Loader::get()->getLoadedMod("weebify.separate_dual_icons"))
 			useP2Gradient = sdiMod->getSavedValue<bool>("2pselected");
 
-	Loader::get()->queueInMainThread([this, type, useP2Gradient] {
+	Loader::get()->queueInMainThread([this, type, useP2Gradient, isGarage] {
 		if (!getParent()) return;
 		if (!typeinfo_cast<GJItemIcon*>(getParent())) return;
 
@@ -25,9 +26,9 @@ void ProSimplePlayer::updatePlayerFrame(int p0, IconType type) {
 
 		Gradient gradient = Utils::getGradient(type, useP2Gradient);
 
-		Utils::applyGradient(this, gradient.main, ColorType::Main, type, useP2Gradient, true);
-		Utils::applyGradient(this, gradient.secondary, ColorType::Secondary, type, useP2Gradient, true);
-		Utils::applyGradient(this, gradient.glow, ColorType::Glow, type, useP2Gradient, true);
+		Utils::applyGradient(this, gradient.main, ColorType::Main, type, useP2Gradient, true, false, isGarage);
+		Utils::applyGradient(this, gradient.secondary, ColorType::Secondary, type, useP2Gradient, true, false, isGarage);
+		Utils::applyGradient(this, gradient.glow, ColorType::Glow, type, useP2Gradient, true, false, isGarage);
 
 		autorelease();
 	});

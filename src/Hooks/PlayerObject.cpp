@@ -82,17 +82,17 @@ void ProPlayerObject::updateIconSprite(Gradient gradient, IconType type, bool se
         updateSprite(m_iconGlow, f->m_iconGlow, SpriteType::Icon, ColorType::Glow);
 
     if (f->m_iconSprite) {
-        Utils::applyGradient(f->m_iconSprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, 0), true);
+        Utils::applyGradient(f->m_iconSprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, 0, false), true);
         f->m_iconSprite->setVisible(!gradient.main.points.empty());
     }
 
     if (f->m_iconSpriteSecondary) {
-        Utils::applyGradient(f->m_iconSpriteSecondary, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, 0), true);
+        Utils::applyGradient(f->m_iconSpriteSecondary, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, 0, false), true);
         f->m_iconSpriteSecondary->setVisible(!gradient.secondary.points.empty());
     }
     
     if (f->m_iconGlow) {
-        Utils::applyGradient(f->m_iconGlow, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, 0), true);
+        Utils::applyGradient(f->m_iconGlow, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, 0, false), true);
         f->m_iconGlow->setVisible(!gradient.glow.points.empty());
     }
 }
@@ -108,17 +108,17 @@ void ProPlayerObject::updateVehicleSprite(Gradient gradient, IconType type, bool
         updateSprite(m_vehicleGlow, f->m_vehicleGlow, SpriteType::Vehicle, ColorType::Glow);
 
     if (f->m_vehicleSprite) {
-        Utils::applyGradient(f->m_vehicleSprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, 0), true);
+        Utils::applyGradient(f->m_vehicleSprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, 0, false), true);
         f->m_vehicleSprite->setVisible(!gradient.main.points.empty());
     }
 
     if (f->m_vehicleSpriteSecondary) {
-        Utils::applyGradient(f->m_vehicleSpriteSecondary, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, 0), true);
+        Utils::applyGradient(f->m_vehicleSpriteSecondary, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, 0, false), true);
         f->m_vehicleSpriteSecondary->setVisible(!gradient.secondary.points.empty());
     }
 
     if (f->m_vehicleGlow) {
-        Utils::applyGradient(f->m_vehicleGlow, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, 0), true);
+        Utils::applyGradient(f->m_vehicleGlow, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, 0, false), true);
         f->m_vehicleGlow->setVisible(!gradient.glow.points.empty());
     }
 
@@ -147,7 +147,7 @@ void ProPlayerObject::updateAnimSprite(IconType type, bool secondPlayer, Gradien
 
         f->m_animSprites.push_back(sprite);
 
-        Utils::applyGradient(sprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, count - 1), true);
+        Utils::applyGradient(sprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, count - 1, false), true);
 
         count++;
     }
@@ -165,7 +165,7 @@ void ProPlayerObject::updateAnimSprite(IconType type, bool secondPlayer, Gradien
 
         f->m_animSprites.push_back(sprite);
 
-        Utils::applyGradient(sprite, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, count - 1), true);
+        Utils::applyGradient(sprite, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, count - 1, false), true);
 
         count++;
     }
@@ -183,7 +183,7 @@ void ProPlayerObject::updateAnimSprite(IconType type, bool secondPlayer, Gradien
 
         f->m_animSprites.push_back(sprite);
 
-        Utils::applyGradient(sprite, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, count - 1), true);
+        Utils::applyGradient(sprite, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, count - 1, false), true);
 
         count++;
     }
