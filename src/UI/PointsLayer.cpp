@@ -270,7 +270,7 @@ void PointsLayer::updatePointScale(float value) {
 }
 
 void PointsLayer::updateGradient(GradientConfig config, ColorType colorType, bool force) {
-    Utils::applyGradient(m_icon, config, colorType, force);
+    Utils::applyGradient(m_icon, config, colorType, m_type, m_layer->isSecondPlayer(), force);
 
     m_currentColor = colorType;
 

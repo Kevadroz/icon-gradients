@@ -97,7 +97,7 @@ void IconButton::setLocked(bool locked, bool instant) {
 
         float time = instant ? 0.f : 0.1f;
 
-        Utils::applyGradient(m_dot->getSprite(), m_currentConfig, true, true);
+        Utils::applyGradient(m_dot->getSprite(), m_currentConfig, m_currentCacheKey, true, true);
 
         m_dot->setHidden(true, time);
 
@@ -117,15 +117,16 @@ void IconButton::applyGradient(bool force, ColorType colorType, bool transition,
     // transition = false; // ignore
 
     m_currentConfig = Utils::getSavedConfig(m_type, colorType, secondPlayer);
+    m_currentCacheKey = std::make_tuple(colorType, m_type, secondPlayer, 0);
 
     if (all) {
         Gradient gradient = Utils::getGradient(m_type, secondPlayer);
 
-        Utils::applyGradient(m_icon, gradient.main, ColorType::Main, force);
-        Utils::applyGradient(m_icon, gradient.secondary, ColorType::Secondary, force);
-        Utils::applyGradient(m_icon, gradient.glow, ColorType::Glow, force);
+        Utils::applyGradient(m_icon, gradient.main, ColorType::Main, m_type, secondPlayer, force);
+        Utils::applyGradient(m_icon, gradient.secondary, ColorType::Secondary, m_type, secondPlayer, force);
+        Utils::applyGradient(m_icon, gradient.glow, ColorType::Glow, m_type, secondPlayer, force);
     } else
-        Utils::applyGradient(m_icon, m_currentConfig, colorType, force);
+        Utils::applyGradient(m_icon, m_currentConfig, colorType, m_type, secondPlayer, force);
 
     int playerColor;
     switch (colorType) {
@@ -150,10 +151,10 @@ void IconButton::applyGradient(bool force, ColorType colorType, bool transition,
         : ccc3(255, 255, 255));
 
     if (!transition || !isLocked() || previousConfig == m_currentConfig)
-       return Utils::applyGradient(m_dot->getSprite(), m_currentConfig, force);
+       return Utils::applyGradient(m_dot->getSprite(), m_currentConfig, m_currentCacheKey, force);
 
-    Utils::applyGradient(m_dot->getSprite(), m_currentConfig, force, true);
-    Utils::applyGradient(m_secondDot->getSprite(), previousConfig, force, true);
+    Utils::applyGradient(m_dot->getSprite(), m_currentConfig, m_currentCacheKey, force, true);
+    Utils::applyGradient(m_secondDot->getSprite(), previousConfig, m_currentCacheKey, force, true);
 
     m_secondDot->setHidden(false, 0.f);
     m_secondDot->setHidden(true, 0.1f);
@@ -173,7 +174,7 @@ void IconButton::updateSprite(bool secondPlayer) {
 }
 
 void IconButton::onAnimationEnded() {
-    Utils::applyGradient(m_dot->getSprite(), m_currentConfig, m_didForce);
+    Utils::applyGradient(m_dot->getSprite(), m_currentConfig, m_currentCacheKey, m_didForce);
 
     m_dot->setHidden(!m_isLocked, 0.f, true);
     m_secondDot->setHidden(true, 0.f, true);

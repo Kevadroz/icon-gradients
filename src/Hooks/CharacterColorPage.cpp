@@ -22,10 +22,10 @@ void ProCharacterColorPage::updateGradient() {
                     type = IconType::Jetpack;
 
             Gradient gradient = Utils::getGradient(type, p2Selected);
-            
-            Utils::applyGradient(array[i], gradient.main, ColorType::Main, true);
-            Utils::applyGradient(array[i], gradient.secondary, ColorType::Secondary, true);
-            Utils::applyGradient(array[i], gradient.glow, ColorType::Glow, true);
+
+            Utils::applyGradient(array[i], gradient.main, ColorType::Main, type, p2Selected, true);
+            Utils::applyGradient(array[i], gradient.secondary, ColorType::Secondary, type, p2Selected, true);
+            Utils::applyGradient(array[i], gradient.glow, ColorType::Glow, type, p2Selected, true);
         }
     });
 }

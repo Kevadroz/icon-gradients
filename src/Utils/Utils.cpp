@@ -309,32 +309,49 @@ std::vector<GradientConfig> Utils::getSavedGradients() {
     return ret;
 }
 
-void Utils::applyGradient(SimplePlayer* icon, GradientConfig config, ColorType colorType, bool force, bool blend) {
+void Utils::applyGradient(SimplePlayer* icon, GradientConfig config, ColorType colorType, IconType iconType, bool secondPlayer, bool force, bool blend) {
     GJRobotSprite* otherSprite = nullptr;
+
+    std::optional<std::tuple<ColorType, IconType, bool, unsigned int>> colorCacheKey =
+        std::make_tuple(colorType, iconType, secondPlayer, 0);
 
     if (icon->m_robotSprite) if (icon->m_robotSprite->isVisible()) otherSprite = icon->m_robotSprite;
     if (icon->m_spiderSprite) if (icon->m_spiderSprite->isVisible()) otherSprite = icon->m_spiderSprite;
 
     if (otherSprite) {
+        int partIndex = 0;
         switch (colorType) {
             case ColorType::Main:
                 for (CCSpritePart* spr : CCArrayExt<CCSpritePart*>(otherSprite->m_headSprite->getParent()->getChildren())) {
                     if (!typeinfo_cast<CCSpritePart*>(spr)) continue;
-                    applyGradient(spr, config, force, blend);
+
+                    if (colorCacheKey.has_value())
+                        std::get<3>(colorCacheKey.value()) = partIndex;
+
+                    applyGradient(spr, config, colorCacheKey, force, blend);
+                    partIndex++;
                 }
             break;
             case ColorType::Secondary:
                 for (CCSprite* spr : CCArrayExt<CCSprite*>(otherSprite->m_secondArray)) {
                     if (!typeinfo_cast<CCSprite*>(spr) || spr == otherSprite->m_headSprite) continue;
 
-                    applyGradient(spr, config, force, blend);
+                    if (colorCacheKey.has_value())
+                        std::get<3>(colorCacheKey.value()) = partIndex;
+
+                    applyGradient(spr, config, colorCacheKey, force, blend);
+                    partIndex++;
                 }
             break;
             case ColorType::Glow:
                 for (CCSprite* spr : CCArrayExt<CCSprite*>(otherSprite->m_glowSprite->getChildren())) {
-                    // if (!typeinfo_cast<CCSprite*>(spr) || spr == otherSprite->m_headSprite) continue;
+                    if (!typeinfo_cast<CCSpritePart*>(spr)) continue;
 
-                    applyGradient(spr, config, force, blend);
+                    if (colorCacheKey.has_value())
+                        std::get<3>(colorCacheKey.value()) = partIndex;
+                    
+                    applyGradient(spr, config, colorCacheKey, force, blend);
+                    partIndex++;
                 }
             break;
         }
@@ -353,11 +370,11 @@ void Utils::applyGradient(SimplePlayer* icon, GradientConfig config, ColorType c
                 break;
         }
 
-        applyGradient(sprite, config, force);
+        applyGradient(sprite, config, colorCacheKey, force);
     }
 }
 
-void Utils::applyGradient(CCSprite* sprite, GradientConfig config, bool force, bool blend) {
+void Utils::applyGradient(CCSprite* sprite, GradientConfig config, std::optional<std::tuple<ColorType, IconType, bool, unsigned int>> cacheKey, bool force, bool blend) {
     if (!sprite) return;
     
     CCGLProgram* defaultProgram = CCShaderCache::sharedShaderCache()->programForKey(kCCShader_PositionTextureColor);
@@ -368,11 +385,34 @@ void Utils::applyGradient(CCSprite* sprite, GradientConfig config, bool force, b
     CCGLProgram* program = sprite->getShaderProgram();
      
     if (program == defaultProgram || force || blend) {
+        std::string shaderFile = fmt::format("{}_gradient{}.fsh",
+                                       config.isLinear ? "linear" : "radial",
+                                       blend ? "_blend" : "");
+
         std::string vertPath = (Mod::get()->getResourcesDir() / "position.vert").string();
-        std::string shaderPath = (Mod::get()->getResourcesDir() / fmt::format("{}_gradient{}.fsh", config.isLinear ? "linear" : "radial", blend ? "_blend" : "")).string();
+        std::string shaderPath =
+            (Mod::get()->getResourcesDir() / shaderFile).string();
 
         if (!std::filesystem::exists(vertPath) || !std::filesystem::exists(shaderPath))
             return;
+
+        std::string fullCacheKey;
+        if (cacheKey.has_value()) {
+            std::tuple<ColorType, IconType, bool, unsigned int> cacheKeyValue = cacheKey.value();
+            fullCacheKey = getFullCacheKey(
+                shaderFile,
+                std::get<0>(cacheKeyValue),
+                std::get<1>(cacheKeyValue),
+                std::get<2>(cacheKeyValue),
+                std::get<3>(cacheKeyValue)
+            );
+
+            CCGLProgram* cacheProgram = CCShaderCache::sharedShaderCache()->programForKey(fullCacheKey.c_str());
+            if (cacheProgram != nullptr) {
+                sprite->setShaderProgram(cacheProgram);
+                return;
+            }
+        }
 
         program = new CCGLProgram();
         program->autorelease();
@@ -387,6 +427,9 @@ void Utils::applyGradient(CCSprite* sprite, GradientConfig config, bool force, b
         program->updateUniforms();
 
         sprite->setShaderProgram(program);
+
+        if (cacheKey.has_value())
+            CCShaderCache::sharedShaderCache()->addProgram(program, fullCacheKey.c_str());
     }
 
     program->use();
@@ -490,6 +533,55 @@ void Utils::applyGradient(CCSprite* sprite, GradientConfig config, bool force, b
 
     GLint colorsLoc = glGetUniformLocation(program->getProgram(), "colors");
     glUniform4fv(colorsLoc, stopAt, colorsData.data());
+}
+
+std::string Utils::getFullCacheKey(std::string shaderFile, ColorType colorType, IconType iconType, bool secondPlayer, unsigned int partIndex) {
+    const char* iconTypeStr;
+    const char* colorTypeStr;
+    switch (iconType) {
+    case IconType::Cube:
+        iconTypeStr = "Cube";
+        break;
+    case IconType::Ship:
+        iconTypeStr = "Ship";
+        break;
+    case IconType::Ball:
+        iconTypeStr = "Ball";
+        break;
+    case IconType::Ufo:
+        iconTypeStr = "Ufo";
+        break;
+    case IconType::Wave:
+        iconTypeStr = "Wave";
+        break;
+    case IconType::Robot:
+        iconTypeStr = "Robot";
+        break;
+    case IconType::Spider:
+        iconTypeStr = "Spider";
+        break;
+    case IconType::Swing:
+        iconTypeStr = "Swing";
+        break;
+    case IconType::Jetpack:
+        iconTypeStr = "Jetpack";
+        break;
+    default:
+        iconTypeStr = "Unknown";
+        break;
+    }
+    switch (colorType) {
+    case Main:
+        colorTypeStr = "Main";
+        break;
+    case Secondary:
+        colorTypeStr = "Secondary";
+        break;
+    case Glow:
+        colorTypeStr = "Glow";
+        break;
+    }
+    return fmt::format("{}-{}{}{}{}", shaderFile, secondPlayer ? "P2" : "P1", iconTypeStr, colorTypeStr, partIndex);
 }
 
 void Utils::patchBatchNode(CCSpriteBatchNode* node) {

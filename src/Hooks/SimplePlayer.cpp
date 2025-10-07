@@ -25,9 +25,9 @@ void ProSimplePlayer::updatePlayerFrame(int p0, IconType type) {
 
 		Gradient gradient = Utils::getGradient(type, useP2Gradient);
 
-		Utils::applyGradient(this, gradient.main, ColorType::Main, true);
-		Utils::applyGradient(this, gradient.secondary, ColorType::Secondary, true);
-		Utils::applyGradient(this, gradient.glow, ColorType::Glow, true);
+		Utils::applyGradient(this, gradient.main, ColorType::Main, type, useP2Gradient, true);
+		Utils::applyGradient(this, gradient.secondary, ColorType::Secondary, type, useP2Gradient, true);
+		Utils::applyGradient(this, gradient.glow, ColorType::Glow, type, useP2Gradient, true);
 
 		autorelease();
 	});

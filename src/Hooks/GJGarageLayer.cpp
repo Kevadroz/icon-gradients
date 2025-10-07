@@ -28,15 +28,15 @@ void ProGJGarageLayer::updateGradient(bool colorful) {
 	if (Utils::isSettingEnabled(MOD_DISABLED)) {
 		if (!m_playerObject) return;
 
-		Utils::applyGradient(m_playerObject, {{}, true}, ColorType::Main, true);
-		Utils::applyGradient(m_playerObject, {{}, true}, ColorType::Secondary, true);
-		Utils::applyGradient(m_playerObject, {{}, true}, ColorType::Glow, true);
+		Utils::applyGradient(m_playerObject, {{}, true}, ColorType::Main, IconType::Cube, false, true);
+		Utils::applyGradient(m_playerObject, {{}, true}, ColorType::Secondary, IconType::Cube, false, true);
+		Utils::applyGradient(m_playerObject, {{}, true}, ColorType::Glow, IconType::Cube, false, true);
 
 		if (Loader::get()->isModLoaded("weebify.separate_dual_icons"))
 			if (SimplePlayer* icon = typeinfo_cast<SimplePlayer*>(getChildByID("player2-icon"))) {
-				Utils::applyGradient(icon, {{}, true}, ColorType::Main, true);
-				Utils::applyGradient(icon, {{}, true}, ColorType::Secondary, true);
-				Utils::applyGradient(icon, {{}, true}, ColorType::Glow, true);
+				Utils::applyGradient(icon, {{}, true}, ColorType::Main, IconType::Cube, false, true);
+				Utils::applyGradient(icon, {{}, true}, ColorType::Secondary, IconType::Cube, false, true);
+				Utils::applyGradient(icon, {{}, true}, ColorType::Glow, IconType::Cube, false, true);
 			}
 		
 		return;
@@ -49,17 +49,17 @@ void ProGJGarageLayer::updateGradient(bool colorful) {
 
 		Gradient gradient = Utils::getGradient(type, false);
 
-		Utils::applyGradient(m_playerObject, gradient.main, ColorType::Main, true);
-		Utils::applyGradient(m_playerObject, gradient.secondary, ColorType::Secondary, true);
-		Utils::applyGradient(m_playerObject, gradient.glow, ColorType::Glow, true);
+		Utils::applyGradient(m_playerObject, gradient.main, ColorType::Main, type, false, true);
+		Utils::applyGradient(m_playerObject, gradient.secondary, ColorType::Secondary, type, false, true);
+		Utils::applyGradient(m_playerObject, gradient.glow, ColorType::Glow, type, false, true);
 
 		if (Loader::get()->isModLoaded("weebify.separate_dual_icons"))
 			if (SimplePlayer* icon = typeinfo_cast<SimplePlayer*>(getChildByID("player2-icon"))) {
 				Gradient gradient = Utils::getGradient( Utils::getIconType(icon), true);
 
-				Utils::applyGradient(icon, gradient.main, ColorType::Main, true);
-				Utils::applyGradient(icon, gradient.secondary, ColorType::Secondary, true);
-				Utils::applyGradient(icon, gradient.glow, ColorType::Glow, true);
+				Utils::applyGradient(icon, gradient.main, ColorType::Main, type, true, true);
+				Utils::applyGradient(icon, gradient.secondary, ColorType::Secondary, type, true, true);
+				Utils::applyGradient(icon, gradient.glow, ColorType::Glow, type, true, true);
 			}
 	});
 
@@ -80,9 +80,9 @@ void ProGJGarageLayer::updateGradient(bool colorful) {
 			loadedGradient = true;
 		}
 
-		Utils::applyGradient(icon, gradient.main, ColorType::Main, true);
-		Utils::applyGradient(icon, gradient.secondary, ColorType::Secondary, true);
-		Utils::applyGradient(icon, gradient.glow, ColorType::Glow, true);
+		Utils::applyGradient(icon, gradient.main, ColorType::Main, type, p2Selected, true);
+		Utils::applyGradient(icon, gradient.secondary, ColorType::Secondary, type, p2Selected, true);
+		Utils::applyGradient(icon, gradient.glow, ColorType::Glow, type, p2Selected, true);
 	}
 }
 

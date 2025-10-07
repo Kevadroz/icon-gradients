@@ -39,12 +39,14 @@ void ProMenuGameLayer::resetPlayer() {
     }
 
     if (type != IconType::Ship && type != IconType::Jetpack && type != IconType::Ufo)
-        return player->updateIconSprite(gradient, f);
+        return player->updateIconSprite(gradient, type, false, f);
 
-    player->updateVehicleSprite(gradient, f);
+    player->updateVehicleSprite(gradient, type, false, f);
 
     player->updateIconSprite(
         Utils::getGradient(IconType::Cube, false),
+        IconType::Cube,
+        false,
         f
     );
 

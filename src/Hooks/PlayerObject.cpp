@@ -71,7 +71,7 @@ void ProPlayerObject::updateSprite(CCSprite* realSprite, CCSprite*& sprite, Spri
     realSprite->setCascadeOpacityEnabled(true);
 }
 
-void ProPlayerObject::updateIconSprite(Gradient gradient, auto f) {
+void ProPlayerObject::updateIconSprite(Gradient gradient, IconType type, bool secondPlayer, auto f) {
     if (!gradient.main.points.empty())
         updateSprite(m_iconSprite, f->m_iconSprite, SpriteType::Icon, ColorType::Main);
 
@@ -82,22 +82,22 @@ void ProPlayerObject::updateIconSprite(Gradient gradient, auto f) {
         updateSprite(m_iconGlow, f->m_iconGlow, SpriteType::Icon, ColorType::Glow);
 
     if (f->m_iconSprite) {
-        Utils::applyGradient(f->m_iconSprite, gradient.main, true);
+        Utils::applyGradient(f->m_iconSprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, 0), true);
         f->m_iconSprite->setVisible(!gradient.main.points.empty());
     }
 
     if (f->m_iconSpriteSecondary) {
-        Utils::applyGradient(f->m_iconSpriteSecondary, gradient.secondary, true);
+        Utils::applyGradient(f->m_iconSpriteSecondary, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, 0), true);
         f->m_iconSpriteSecondary->setVisible(!gradient.secondary.points.empty());
     }
     
     if (f->m_iconGlow) {
-        Utils::applyGradient(f->m_iconGlow, gradient.glow, true);
+        Utils::applyGradient(f->m_iconGlow, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, 0), true);
         f->m_iconGlow->setVisible(!gradient.glow.points.empty());
     }
 }
 
-void ProPlayerObject::updateVehicleSprite(Gradient gradient, auto f) {
+void ProPlayerObject::updateVehicleSprite(Gradient gradient, IconType type, bool secondPlayer, auto f) {
     if (!gradient.main.points.empty())
         updateSprite(m_vehicleSprite, f->m_vehicleSprite, SpriteType::Vehicle, ColorType::Main);
 
@@ -108,23 +108,23 @@ void ProPlayerObject::updateVehicleSprite(Gradient gradient, auto f) {
         updateSprite(m_vehicleGlow, f->m_vehicleGlow, SpriteType::Vehicle, ColorType::Glow);
 
     if (f->m_vehicleSprite) {
-        Utils::applyGradient(f->m_vehicleSprite, gradient.main, true);
+        Utils::applyGradient(f->m_vehicleSprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, 0), true);
         f->m_vehicleSprite->setVisible(!gradient.main.points.empty());
     }
 
     if (f->m_vehicleSpriteSecondary) {
-        Utils::applyGradient(f->m_vehicleSpriteSecondary, gradient.secondary, true);
+        Utils::applyGradient(f->m_vehicleSpriteSecondary, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, 0), true);
         f->m_vehicleSpriteSecondary->setVisible(!gradient.secondary.points.empty());
     }
 
     if (f->m_vehicleGlow) {
-        Utils::applyGradient(f->m_vehicleGlow, gradient.glow, true);
+        Utils::applyGradient(f->m_vehicleGlow, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, 0), true);
         f->m_vehicleGlow->setVisible(!gradient.glow.points.empty());
     }
 
 }
 
-void ProPlayerObject::updateAnimSprite(IconType type, Gradient gradient, auto f) {
+void ProPlayerObject::updateAnimSprite(IconType type, bool secondPlayer, Gradient gradient, auto f) {
     if (shouldReturn(GJBaseGameLayer::get())) return;
 
     GJRobotSprite* sprite = type == IconType::Robot ? m_robotSprite : m_spiderSprite;
@@ -147,7 +147,7 @@ void ProPlayerObject::updateAnimSprite(IconType type, Gradient gradient, auto f)
 
         f->m_animSprites.push_back(sprite);
 
-        Utils::applyGradient(sprite, gradient.main, true);
+        Utils::applyGradient(sprite, gradient.main, std::make_tuple(ColorType::Main, type, secondPlayer, count - 1), true);
 
         count++;
     }
@@ -165,7 +165,7 @@ void ProPlayerObject::updateAnimSprite(IconType type, Gradient gradient, auto f)
 
         f->m_animSprites.push_back(sprite);
 
-        Utils::applyGradient(sprite, gradient.secondary, true);
+        Utils::applyGradient(sprite, gradient.secondary, std::make_tuple(ColorType::Secondary, type, secondPlayer, count - 1), true);
 
         count++;
     }
@@ -183,7 +183,7 @@ void ProPlayerObject::updateAnimSprite(IconType type, Gradient gradient, auto f)
 
         f->m_animSprites.push_back(sprite);
 
-        Utils::applyGradient(sprite, gradient.glow, true);
+        Utils::applyGradient(sprite, gradient.glow, std::make_tuple(ColorType::Glow, type, secondPlayer, count - 1), true);
 
         count++;
     }
@@ -209,13 +209,13 @@ void ProPlayerObject::updateGradient() {
     }
 
     if (type != IconType::Ship && type != IconType::Jetpack && type != IconType::Ufo)
-        return updateIconSprite(gradient, f);
+        return updateIconSprite(gradient, type, m_isSecondPlayer, f);
 
-    updateVehicleSprite(gradient, f);
+    updateVehicleSprite(gradient, type, m_isSecondPlayer, f);
 
     updateIconSprite(
         Utils::getGradient(IconType::Cube, m_isSecondPlayer),
-        f
+        IconType::Cube, m_isSecondPlayer, f
     );
 
     if (f->m_thatOneUfoShipAndCubeModIsLoaded && !m_isSecondPlayer) {
@@ -284,7 +284,7 @@ void ProPlayerObject::createRobot(int p0) {
         if (shouldReturn(GJBaseGameLayer::get())) return;
 
         updateAnimSprite(
-            IconType::Robot,
+            IconType::Robot, this == m_gameLayer->m_player2,
             Utils::getGradient(IconType::Robot, this == m_gameLayer->m_player2),
             m_fields.self()
         );
@@ -300,7 +300,7 @@ void ProPlayerObject::createSpider(int p0) {
         if (shouldReturn(GJBaseGameLayer::get())) return;
 
         updateAnimSprite(
-            IconType::Spider,
+            IconType::Spider, this == m_gameLayer->m_player2,
             Utils::getGradient(IconType::Spider, this == m_gameLayer->m_player2),
             m_fields.self()
         );

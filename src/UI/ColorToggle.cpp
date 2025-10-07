@@ -133,10 +133,10 @@ void ColorToggle::applyGradient(GradientConfig config, bool force, bool transiti
     m_sprite->stopAllActions();
     m_secondSprite->stopAllActions();
 
-    Utils::applyGradient(m_sprite, m_currentConfig, m_didForce, transition);
+    Utils::applyGradient(m_sprite, m_currentConfig, std::nullopt, m_didForce, transition);
 
     if (!transition)
-        return Utils::applyGradient(m_secondSprite, m_currentConfig, force, transition);
+        return Utils::applyGradient(m_secondSprite, m_currentConfig, std::nullopt, force, transition);
 
     m_secondSprite->setOpacity(255);
     m_secondSprite->runAction(CCFadeTo::create(0.2f, 0));
@@ -149,7 +149,7 @@ void ColorToggle::applyGradient(GradientConfig config, bool force, bool transiti
 }
 
 void ColorToggle::onAnimationEnded() {
-    Utils::applyGradient(m_secondSprite, m_currentConfig, m_didForce, true);
+    Utils::applyGradient(m_secondSprite, m_currentConfig, std::nullopt, m_didForce, true);
 
     m_sprite->setOpacity(255);
     m_secondSprite->setOpacity(0);

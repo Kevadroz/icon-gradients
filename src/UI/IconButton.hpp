@@ -18,6 +18,7 @@ private:
     bool m_isSecondPlayer = false;
 
     GradientConfig m_currentConfig;
+    std::tuple<ColorType, IconType, bool, unsigned int> m_currentCacheKey;
 
     bool m_isLocked = false;
     bool m_didForce = false;

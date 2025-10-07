@@ -41,11 +41,11 @@ class $modify(ProPlayerObject, PlayerObject) {
 
 	void updateSprite(CCSprite*, CCSprite*&, SpriteType, ColorType);
 
-	void updateIconSprite(Gradient, auto);
+	void updateIconSprite(Gradient, IconType, bool, auto);
 
-	void updateVehicleSprite(Gradient, auto);
+	void updateVehicleSprite(Gradient, IconType, bool, auto);
 
-	void updateAnimSprite(IconType, Gradient, auto);
+	void updateAnimSprite(IconType, bool, Gradient, auto);
 
 	void updateGradient();
 

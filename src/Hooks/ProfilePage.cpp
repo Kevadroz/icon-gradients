@@ -35,9 +35,9 @@ void ProProfilePage::updateGradient() {
 
         Gradient gradient = Utils::getGradient(type, m_fields->m_isSecondPlayer);
         
-        Utils::applyGradient(child, gradient.main, ColorType::Main, true);
-        Utils::applyGradient(child, gradient.secondary, ColorType::Secondary, true);
-        Utils::applyGradient(child, gradient.glow, ColorType::Glow, true);
+        Utils::applyGradient(child, gradient.main, ColorType::Main, type, m_fields->m_isSecondPlayer, true);
+        Utils::applyGradient(child, gradient.secondary, ColorType::Secondary, type, m_fields->m_isSecondPlayer, true);
+        Utils::applyGradient(child, gradient.glow, ColorType::Glow, type, m_fields->m_isSecondPlayer, true);
     }
 }
 

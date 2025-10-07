@@ -28,8 +28,10 @@ public:
     static void removeSavedGradient(GradientConfig);
     static void saveConfig(GradientConfig, const std::string&, const std::string&);
     static void setIconColors(SimplePlayer*, ColorType, bool, bool = false);
-    static void applyGradient(SimplePlayer*, GradientConfig, ColorType, bool, bool = false);
-    static void applyGradient(CCSprite*, GradientConfig, bool, bool = false);
+    static void applyGradient(SimplePlayer*, GradientConfig, ColorType, IconType, bool, bool, bool = false);
+    static void applyGradient(CCSprite*, GradientConfig, std::optional<std::tuple<ColorType, IconType, bool, unsigned int>>, bool, bool = false);
     static void patchBatchNode(CCSpriteBatchNode*);
 
+private:
+    static std::string getFullCacheKey(std::string, ColorType, IconType, bool, unsigned int);
 };
